@@ -132,11 +132,6 @@
             alertMessage.value = 'パスワードは4文字以上にしてください。'
             return
         }
-        // パスワードが半角英数字か確認
-        if (!password1.value.match(/^[a-zA-Z0-9.?/-]{4,200}$/)) {
-            alertMessage.value = 'パスワードは4文字以上200文字以下の半角英数字にしてください。'
-            return
-        }
         // パスワードが変更されているか確認
         if (password1.value == old_password.value) {
             alertMessage.value = '現在のパスワードと同じものは設定できません。'
