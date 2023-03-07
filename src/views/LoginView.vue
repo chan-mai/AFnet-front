@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { defineComponent, ref } from "vue";
   import axios from 'axios'
+import { toast } from "vue3-toastify";
 
   const redirect = ref('')
   const user_id = ref('')
@@ -37,8 +38,15 @@
       console.log(respose)
       // tokenが有効
       if(respose.data.status == "ok") {
-        // ユーザーページに遷移
-        window.location.href = '/userpg'
+        // リダイレクト連携の有無
+        if(redirect.value == ""){
+          // ユーザーページに遷移
+          window.location.href = '/userpg'
+          toast.success('ログインしました。')
+        }else{
+          // formをsubmit
+          document.getElementsByTagName('form')[0].submit()
+        }
       } else {
         // tokenが無効
         console.log(respose.data)
@@ -56,17 +64,19 @@
       // バリデーションクラスの追加
       document.getElementById('staticEmail')?.classList.add('is-invalid')
       validation01.value = 'メールアドレスの形式が正しくありません。'
+      toast.error('メールアドレスの形式が正しくありません。')
       isFaild = true
     }else{
       // バリデーションクラスの削除
       document.getElementById('staticEmail')?.classList.remove('is-invalid')
       validation01.value = ''
     }
-    // パスワードの有効性チェック
-    if(!password.value.match(/^[a-zA-Z0-9]/)) {
+    // パスワードの入力チェック
+    if(password.value == '') {
       // バリデーションクラスの追加
       document.getElementById('inputPassword')?.classList.add('is-invalid')
-      validation02.value = 'パスワードは半角英数字で入力してください。'
+      validation02.value = 'パスワードを入力してください。'
+      toast.error('パスワードを入力してください。')
       isFaild = true
     }else{
       // バリデーションクラスの削除
@@ -101,6 +111,7 @@
             if(redirect.value == ""){
               // ユーザーページに遷移
               window.location.href = '/userpg'
+              toast.success('ログインしました。')
             }else{
               // formをsubmit
               document.getElementsByTagName('form')[0].submit()
@@ -109,10 +120,12 @@
             // ログイン失敗時の処理
             alertMessage.value = respose.data.message
             console.log(respose.data)
+            toast.error(respose.data.message)
           }
         } else {
           // ログイン失敗
           alertMessage.value = 'APIサーバーとの通信に失敗しました。'
+          toast.error('APIサーバーとの通信に失敗しました。')
         }
       }).catch(error => {
         console.log(error)
