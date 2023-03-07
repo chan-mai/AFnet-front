@@ -1,7 +1,7 @@
 <script setup lang="ts">
     import { defineComponent, ref } from 'vue'
     import axios from 'axios'
-import { faL } from '@fortawesome/free-solid-svg-icons';
+    import { toast } from 'vue3-toastify';
 
     const username = ref('')
     const bio = ref('')
@@ -63,9 +63,11 @@ import { faL } from '@fortawesome/free-solid-svg-icons';
                 initLink = link.value
             } else {
                 alertMessage.value = respose.data.message
+                toast.error(respose.data.message)
             }
             }).catch(error => {
-            console.log(error)
+                console.log(error)
+                toast.error("APIサーバーとの通信に失敗しました")
             })
         } else {
             // ログインページに遷移
@@ -96,15 +98,18 @@ import { faL } from '@fortawesome/free-solid-svg-icons';
         // プロフィール情報を更新
         if(respose.status == 200) {
             if(respose.data.status == "ok") {
-                alert("プロフィールを更新しました")
+                toast.success("プロフィールを更新しました")
             }else{
-                alertMessage.value = respose.data.data.message
+                alertMessage.value = respose.data.message
+                toast.error(respose.data.message)
             }
         } else {
             alertMessage.value = "APIサーバーとの通信に失敗しました"
+            toast.error("APIサーバーとの通信に失敗しました")
         }
         }).catch(error => {
             alertMessage.value = "APIサーバーとの通信に失敗しました"
+            toast.error("APIサーバーとの通信に失敗しました")
             console.log(error)
         })
     }
@@ -127,15 +132,18 @@ import { faL } from '@fortawesome/free-solid-svg-icons';
                 if(respose.status == 200) {
                     if(respose.data.status == "ok") {
                         icon_src.value = "https://api.af-service.net/api/get_icon/"+user_id
-                        window.location.reload()
+                        toast.success("プロフィール画像の更新に成功しました")
                     }else{
-                        alertMessage.value = respose.data.data.message
+                        alertMessage.value = respose.data.message
+                        toast.error(respose.data.message)
                     }
                 } else {
                     alertMessage.value = "APIサーバーとの通信に失敗しました"
+                    toast.error("APIサーバーとの通信に失敗しました")
                 }
             }).catch(error => {
                 alertMessage.value = "APIサーバーとの通信に失敗しました"
+                toast.error("APIサーバーとの通信に失敗しました")
                 console.log(error)
             })
         }

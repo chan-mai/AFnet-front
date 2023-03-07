@@ -1,6 +1,7 @@
 <script setup lang="ts">
     import { defineComponent, ref } from 'vue'
     import axios from 'axios'
+import { toast } from 'vue3-toastify';
 
     const alertMessage = ref('')
     const email = ref('')
@@ -53,9 +54,11 @@
                     old_email.value = respose.data.data.email
                 } else {
                     alertMessage.value = 'apiサーバーとの通信に失敗しました。'
+                    toast.error('apiサーバーとの通信に失敗しました。')
                 }
             } else {
                 alertMessage.value = 'apiサーバーとの通信に失敗しました。'
+                toast.error('apiサーバーとの通信に失敗しました。')
             }
             }).catch(error => {
             console.log(error)
@@ -65,6 +68,7 @@
             window.location.href = '/login'
         }
         }).catch(error => {
+        alertMessage.value = 'apiサーバーとの通信に失敗しました。'
         console.log(error)
         })
     } else {
@@ -77,16 +81,19 @@
         // 入力確認
         if (email.value == '') {
             alertMessage.value = 'メールアドレスを入力してください。'
+            toast.error('メールアドレスを入力してください。')
             return
         }
         // メールアドレスが正しいか確認
         if (!email.value.match(/.+@.+\..+/)) {
             alertMessage.value = 'メールアドレスの形式が正しくありません。'
+            toast.error('メールアドレスの形式が正しくありません。')
             return
         }
         // メールアドレスが変更されているか確認
         if (email.value == old_email.value) {
             alertMessage.value = '現在のメールアドレスと同じものは設定できません。'
+            toast.error('現在のメールアドレスと同じものは設定できません。')
             return
         }
         // 更新
@@ -102,16 +109,19 @@
             console.log(respose)
             if(respose.status == 200) {
                 if(respose.data.status == "ok") {
-                    alert('メールアドレスを変更しました。')
+                    toast.success('メールアドレスの更新が完了しました。')
                 } else {
                     alertMessage.value = respose.data.message
+                    toast.error(respose.data.message)
                 }
             } else {
                 alertMessage.value = 'apiサーバーとの通信に失敗しました。'
+                toast.error('apiサーバーとの通信に失敗しました。')
             }
         }).catch(error => {
             console.log(error)
             alertMessage.value = 'apiサーバーとの通信に失敗しました。'
+            toast.error('apiサーバーとの通信に失敗しました。')
         })
     }
 
@@ -120,21 +130,25 @@
         // 入力確認
         if (password1.value == '' || password2.value == '' || old_password.value == '') {
             alertMessage.value = 'パスワードを入力してください。'
+            toast.error('パスワードを入力してください。')
             return
         }
         // パスワードが一致しているか確認
         if (password1.value != password2.value) {
             alertMessage.value = 'パスワードが一致しません。'
+            toast.error('パスワードが一致しません。')
             return
         }
         // パスワードが8文字以上か確認
         if (password1.value.length < 4) {
             alertMessage.value = 'パスワードは4文字以上にしてください。'
+            toast.error('パスワードは4文字以上にしてください。')
             return
         }
         // パスワードが変更されているか確認
         if (password1.value == old_password.value) {
             alertMessage.value = '現在のパスワードと同じものは設定できません。'
+            toast.error('現在のパスワードと同じものは設定できません。')
             return
         }
         // パスワードを変更
@@ -150,16 +164,18 @@
             console.log(respose)
             if(respose.status == 200) {
                 if(respose.data.status == "ok") {
-                    alert('パスワードを変更しました。')
+                    toast.success('パスワードを更新しました。')
                 } else {
                     alertMessage.value = respose.data.message
                 }
             } else {
-                alertMessage.value = 'apiサーバーとの通信に失敗しました。'
+                alertMessage.value = 'APIサーバーとの通信に失敗しました。'
+                toast.error('APIサーバーとの通信に失敗しました。')
             }
         }).catch(error => {
             console.log(error)
-            alertMessage.value = 'apiサーバーとの通信に失敗しました。'
+            alertMessage.value = 'APIサーバーとの通信に失敗しました。'
+            toast.error('APIサーバーとの通信に失敗しました。')
         })
     }
 
@@ -182,17 +198,18 @@
                     // 既存のcookieを更新
                     document.cookie = 'token=' + respose.data.data.new_token + '; path=/; max-age=2592000'
 
-                    // 再読み込み
-                    location.reload()
+                    toast.success('ログイン用トークンの再生成が完了しました。')
                 } else {
                     alertMessage.value = respose.data.message
                 }
             } else {
-                alertMessage.value = 'apiサーバーとの通信に失敗しました。'
+                alertMessage.value = 'APIサーバーとの通信に失敗しました。'
+                toast.error('APIサーバーとの通信に失敗しました。')
             }
         }).catch(error => {
             console.log(error)
-            alertMessage.value = 'apiサーバーとの通信に失敗しました。'
+            alertMessage.value = 'APIサーバーとの通信に失敗しました。'
+            toast.error('APIサーバーとの通信に失敗しました。')
         })
     }
 
