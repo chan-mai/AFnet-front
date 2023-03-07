@@ -53,7 +53,7 @@ import { faL } from '@fortawesome/free-solid-svg-icons';
                 bio.value = respose.data.data.bio
                 link.value = respose.data.data.link
 
-                if(respose.data.data.icon_img != null) {
+                if(respose.data.data.icon != null) {
                     setIcon.value = true
                     icon_src.value = 'https://api.af-service.net/api/get_icon/'+user_id
                 }
