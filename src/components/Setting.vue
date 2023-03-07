@@ -128,13 +128,13 @@
             return
         }
         // パスワードが8文字以上か確認
-        if (password1.value.length < 8) {
-            alertMessage.value = 'パスワードは8文字以上にしてください。'
+        if (password1.value.length < 4) {
+            alertMessage.value = 'パスワードは4文字以上にしてください。'
             return
         }
         // パスワードが半角英数字か確認
-        if (!password1.value.match(/^[a-zA-Z0-9]+$/)) {
-            alertMessage.value = 'パスワードは半角英数字にしてください。'
+        if (!password1.value.match(/^[a-zA-Z0-9.?/-]{4,200}$/)) {
+            alertMessage.value = 'パスワードは4文字以上200文字以下の半角英数字にしてください。'
             return
         }
         // パスワードが変更されているか確認

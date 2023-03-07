@@ -101,10 +101,10 @@
       validation04.value = ''
     }
     // パスワードの有効性チェック
-    if(!password1.value.match(/^[a-zA-Z0-9]/)) {
+    if(!password1.value.match(/^[a-zA-Z0-9.?/-]{4,200}$/)) {
       // バリデーションクラスの追加
       document.getElementById('inputPassword')?.classList.add('is-invalid')
-      validation02.value = 'パスワードは半角英数字で入力してください。'
+      validation02.value = 'パスワードは4文字以上200文字以下の半角英数字で入力してください。'
       isFaild = true
     }else{
       // バリデーションクラスの削除
