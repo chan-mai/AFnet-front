@@ -1,0 +1,193 @@
+<script setup lang="ts">
+  import { defineComponent, ref } from "vue";
+  import axios from 'axios'
+
+  const redirect = ref('')
+  const user_id = ref('')
+  const token = ref('')
+
+  const email = ref('')
+  const password = ref('')
+  // メールアドレスのバリデーションメッセージ
+  const validation01 = ref('')
+  // パスワードのバリデーションメッセージ
+  const validation02 = ref('')
+
+  const alertMessage = ref('')
+
+  // redirectパラメータ
+  if(document.location.search.match(/redirect/)) {
+    redirect.value = document.location.search.split('redirect=')[1]
+  }
+
+  // cookieにtokenとuser_idがあるか
+  if(document.cookie.match(/token/) && document.cookie.match(/user_id/)) {
+    // tokenの有効性を確認
+    token.value = document.cookie.split('token=')[1].split(';')[0]
+    user_id.value = document.cookie.split('user_id=')[1].split(';')[0]
+
+    axios.post('https://api.af-service.net/api/check_token/'+user_id.value, {
+      token: token.value
+    },
+    {
+      headers: {
+        'content-type': 'multipart/form-data',
+      },
+    }).then(respose => {
+      console.log(respose)
+      // tokenが有効
+      if(respose.data.status == "ok") {
+        // ユーザーページに遷移
+        window.location.href = '/userpg'
+      } else {
+        // tokenが無効
+        console.log(respose.data)
+      }
+    }).catch(error => {
+      console.log(error)
+    })
+  }
+
+  var isFaild = false
+
+  const login = (e: Event) => {
+    // メールアドレスの有効性チェック
+    if(!email.value.match(/.+@.+\..+/)) {
+      // バリデーションクラスの追加
+      document.getElementById('staticEmail')?.classList.add('is-invalid')
+      validation01.value = 'メールアドレスの形式が正しくありません。'
+      isFaild = true
+    }else{
+      // バリデーションクラスの削除
+      document.getElementById('staticEmail')?.classList.remove('is-invalid')
+      validation01.value = ''
+    }
+    // パスワードの有効性チェック
+    if(!password.value.match(/^[a-zA-Z0-9]/)) {
+      // バリデーションクラスの追加
+      document.getElementById('inputPassword')?.classList.add('is-invalid')
+      validation02.value = 'パスワードは半角英数字で入力してください。'
+      isFaild = true
+    }else{
+      // バリデーションクラスの削除
+      document.getElementById('inputPassword')?.classList.remove('is-invalid')
+      validation02.value = ''
+    }
+
+    // 異常値がなければログイン処理を実行
+    if(!isFaild) {
+      // afnet-apiに問い合わせ
+      axios.post('https://api.af-service.net/api/login', {
+        email: email.value,
+        password: password.value
+      },
+      {
+        headers: {
+          'content-type': 'multipart/form-data',
+        },
+      }).then(respose => {
+        console.log(respose)
+        if(respose.status == 200) {
+          // ログイン成功
+          if(respose.data.status == "ok") {
+            // ログイン成功時の処理
+            console.log(respose.data)
+            // cookieにtokenを保存
+            document.cookie = 'token=' + respose.data.data.token + '; path=/; max-age=2592000'
+            // cookieにuser_idを保存
+            document.cookie = 'user_id=' + respose.data.data.user_id + '; path=/; max-age=2592000'
+            
+            // リダイレクト連携の有無
+            if(redirect.value == ""){
+              // ユーザーページに遷移
+              window.location.href = '/userpg'
+            }else{
+              // formをsubmit
+              document.getElementsByTagName('form')[0].submit()
+            }
+          } else {
+            // ログイン失敗時の処理
+            alertMessage.value = respose.data.message
+            console.log(respose.data)
+          }
+        } else {
+          // ログイン失敗
+          alertMessage.value = 'APIサーバーとの通信に失敗しました。'
+        }
+      }).catch(error => {
+        console.log(error)
+      })
+    }
+  }
+
+</script>
+
+<template>
+  <div class="bkgd">
+    <main>
+      <div id="app">
+        <div class="pop">
+          <h1 class="">ログイン</h1><br>
+          <div class="login-form">
+          <div class="mb-3">
+              <label for="staticEmail" class="col-sm-5 col-form-label">メールアドレス</label>
+              <div class="col-sm-12">
+                <input type="text" class="form-control" id="staticEmail" placeholder="user@example.com" aria-describedby="validation01" v-model="email" required />
+                <div id="validation01" class="invalid-feedback">
+                  {{validation01}}
+                </div>
+              </div>
+              <label for="inputPassword" class="col-sm-5 col-form-label">パスワード</label>
+              <div class="col-sm-12">
+                <input type="password" class="form-control" id="inputPassword" placeholder="2sEZP&H!Q4eW!B" aria-describedby="validation02" v-model="password" required>
+                <div id="validation02" class="invalid-feedback">
+                  {{validation02}}
+                </div>
+              </div>
+          </div>
+          <div v-if="redirect != ''" class="alert alert-info" role="alert">
+            ログインを行うことで<a :href="redirect" class="alert-link" target="_blank">{{ redirect.match(/^https?:\/{2,}(.*?)(?:\/|\?|#|$)/)![1] }}</a>へ連携情報が送信されます。
+          </div>
+          <div class="col-sm-10 offset-sm-10">
+              <button class="btn btn-primary" v-on:click="login">ログイン</button>
+          </div>
+          <br v-if="alertMessage">
+          <div v-if="alertMessage" class="alert alert-danger" role="alert">
+            {{alertMessage}}
+          </div>
+      </div>
+        <br>
+        <p v-if="redirect == ''">まだAFnetAccountをお持ちでない場合<a href="/signup">作成</a>することもできます。</p>
+        <p v-if="redirect != ''">まだAFnetAccountをお持ちでない場合<a :href="'/signup?redirect='+ redirect">作成</a>することもできます。</p>
+        </div>
+      </div>
+    </main>
+  </div>
+  <form v-if="redirect != ''" name="redirect-form" method="post" :action="redirect" style="visibility: hidden;">
+    <input type="hidden" name="user_id" :value="user_id">
+    <input type="hidden" name="token" :value="token">
+  </form>
+</template>
+
+<style>
+  .app {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100vh;
+    height: 100vh;
+  }
+  .pop {
+    position: absolute;
+    top: 40%;
+    left: 20%;
+    margin-top: -75px;
+    margin-left: -75px;
+    max-width: 500px;
+    min-width: 400px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    padding: 50px;
+  }
+</style>
